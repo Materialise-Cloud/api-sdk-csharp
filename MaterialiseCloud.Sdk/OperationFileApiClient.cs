@@ -9,7 +9,8 @@ namespace MaterialiseCloud.Sdk
     {
         private TokenProvider _tokenProvider;
 
-        public OperationFileApiClient(string host, TokenProvider tokenProvider) : base(host)
+        public OperationFileApiClient(string host, TokenProvider tokenProvider) 
+            : base(host)
         {
             _tokenProvider = tokenProvider;
         }
@@ -24,20 +25,20 @@ namespace MaterialiseCloud.Sdk
                     var fileName = Path.GetFileName(filePath);
 
                     var fileContent = new ByteArrayContent(file);
-                    fileContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
-                    {
-                        FileName = fileName
-                    };
+                    fileContent.Headers.ContentDisposition = 
+                        new ContentDispositionHeaderValue("attachment")
+                        {
+                            FileName = fileName
+                        };
 
                     content.Add(fileContent);
 
                     var url = "web-api/operation/file";
                     var response = await client.PostAsync(url, content);
 
-                    CheckResponseIsOk(response);
+                    ThrowIfNotSuccessful(response);
 
                     var result = await response.Content.ReadAsAsync<FileUploadResult>();
-
                     return result.FileId;
                 }
             }
@@ -45,17 +46,18 @@ namespace MaterialiseCloud.Sdk
 
         public async Task DownloadFileAsync(string fileId, string filePath)
         {
+            var url = $"web-api/operation/file/{fileId}";
             using (var client = CreateHttpClient(await _tokenProvider.GetAccessTokenAsync()))
             {
-                var url = $"web-api/operation/file/{fileId}";
-
                 var response = await client.GetAsync(url);
+                ThrowIfNotSuccessful(response);
 
-                CheckResponseIsOk(response);
+                using (var file = File.OpenWrite(filePath))
+                using (var contentStream = await response.Content.ReadAsStreamAsync())
+                {
+                    await contentStream.CopyToAsync(file);
+                }
 
-                var fileBytes = await response.Content.ReadAsByteArrayAsync();
-
-                File.WriteAllBytes(filePath, fileBytes);
             }
         }
     }

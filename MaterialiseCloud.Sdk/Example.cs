@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MaterialiseCloud.Sdk.Operations;
+using System;
 using System.Threading.Tasks;
 
 namespace MaterialiseCloud.Sdk
@@ -30,86 +31,66 @@ namespace MaterialiseCloud.Sdk
         {
             //Upload
             Console.WriteLine($"Uploading a file {_uploadFilePath}");
-
             var fileClient = new OperationFileApiClient(_host, _tokenProvider);
-
             _initialFileId = await fileClient.UploadFileAsync(_uploadFilePath);
-
             Console.WriteLine($"Upload done, fileId is {_initialFileId}");
 
             //Import
             Console.WriteLine($"Importing a file {_initialFileId}");
-
             var importClient = new ImportOperationApiClient(_host, _tokenProvider);
-
             _operationId = await importClient.ImportAsync(_initialFileId, MeasurementUnits.Mm);
 
             Console.WriteLine($"Import is in proccess, _operationId is {_operationId}");
-
             await importClient.WaitForOperationToFinish(_operationId);
 
             _resultId = await importClient.GetImportResultAsync(_operationId);
-
             Console.WriteLine($"Import done, resultId is {_resultId}");
 
             //Analyze
             Console.WriteLine($"Analyzing an input {_resultId}");
-
             var analyzeClient = new AnalyzeOperationApiClient(_host, _tokenProvider);
 
             _operationId = await analyzeClient.AnalyzeAsync(_resultId);
 
             Console.WriteLine($"Analyze is in proccess, _operationId is {_operationId}");
-
             await importClient.WaitForOperationToFinish(_operationId);
 
             var result = await analyzeClient.GetAnalyzeResultAsync(_operationId);
 
-            var isRepaitNeeded = result.BadEdges > 0 || result.BadContours > 0 || result.VolumeMm3 <= 0;
+            var isRepairNeeded = result.BadEdges > 0 || result.BadContours > 0 || result.VolumeMm3 <= 0;
 
-            var answer = isRepaitNeeded ? "" : "not ";
+            var answer = isRepairNeeded ? "" : "not ";
             Console.WriteLine($"Analyze done, repair is {answer}needed");
 
             //Repair
-            if (isRepaitNeeded)
+            if (isRepairNeeded)
             {
                 Console.WriteLine($"Repairing an input {_resultId}");
-
                 var repairClient = new RepairOperationApiClient(_host, _tokenProvider);
-
                 _operationId = await repairClient.RepairAsync(_resultId);
 
                 Console.WriteLine($"Repair is in proccess, _operationId is {_operationId}");
-
                 await importClient.WaitForOperationToFinish(_operationId);
 
                 _resultId = await repairClient.GetRepairResultAsync(_operationId);
-
                 Console.WriteLine($"Repair done, resultId is {_resultId}");
             }
 
             //Export
             Console.WriteLine($"Exporting a result {_resultId}");
-
             var exportClient = new ExportOperationApiClient(_host, _tokenProvider);
-
             _operationId = await exportClient.ExportAsync(_resultId, ExportFormats.Stl);
 
             Console.WriteLine($"Export is in proccess, _operationId is {_operationId}");
-
             await importClient.WaitForOperationToFinish(_operationId);
 
             _exportedFileId = await exportClient.GetExportResultAsync(_operationId);
-
             Console.WriteLine($"Export done, fileId is {_exportedFileId}");
 
             //Download
             Console.WriteLine($"Downloading a file to {_downloadFilePath}");
-
             fileClient = new OperationFileApiClient(_host, _tokenProvider);
-
             await fileClient.DownloadFileAsync(_exportedFileId, _downloadFilePath);
-
             Console.WriteLine("Download done");
         }
     }

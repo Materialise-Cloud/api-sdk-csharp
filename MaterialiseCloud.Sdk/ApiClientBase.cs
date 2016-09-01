@@ -15,18 +15,14 @@ namespace MaterialiseCloud.Sdk
             _host = host;
         }
 
-        protected async void CheckResponseIsOk(HttpResponseMessage response)
+        protected async void ThrowIfNotSuccessful(HttpResponseMessage response)
         {
-            if (!response.IsSuccessStatusCode)
+            if (response.IsSuccessStatusCode)
             {
-                await ThrowApiException(response);
+                return;
             }
-        }
 
-        protected async Task ThrowApiException(HttpResponseMessage response)
-        {
             var errorResponse = await response.Content.ReadAsAsync<ErrorResponse>();
-
             if (!errorResponse.Errors.Any())
             {
                 errorResponse.Errors = new[] { new Error(-1, "An unknown error has occured.") };
@@ -38,9 +34,9 @@ namespace MaterialiseCloud.Sdk
         protected HttpClient CreateHttpClient(string token)
         {
             var client = new HttpClient();
-            client.BaseAddress = new Uri(_host);
+            client.BaseAddress = new Uri($"https://{_host}");
+            client.DefaultRequestHeaders.Clear();
             client.DefaultRequestHeaders.Accept.Clear();
-
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
             return client;

@@ -1,5 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
+using System.Collections.Generic;
 using System.Net.Http;
+using System.Net.Http.Formatting;
 using System.Threading.Tasks;
 
 namespace MaterialiseCloud.Sdk
@@ -13,16 +17,24 @@ namespace MaterialiseCloud.Sdk
             _tokenProvider = tokenProvider;
         }
 
-        protected async Task<string> PostOperationAsync(string url, Dictionary<string, string> parameters)
+        protected async Task<string> PostOperationAsync<TRequest>(string url, TRequest request)
         {
             using (var client = CreateHttpClient(await _tokenProvider.GetAccessTokenAsync()))
             {
-                var response = await client.PostAsJsonAsync(url, parameters);
+                var s = JObject.FromObject(request).ToString();
 
-                CheckResponseIsOk(response);
+                var formatter = new JsonMediaTypeFormatter();
+                formatter.SerializerSettings = new JsonSerializerSettings
+                {
+                    Formatting = Formatting.Indented,
+                    ContractResolver = new CamelCasePropertyNamesContractResolver(),
+                    NullValueHandling = NullValueHandling.Ignore,
+                };
+                client.DefaultRequestHeaders.Accept.ParseAdd("application/json");
+                var response = await client.PostAsync(url, request, formatter);
+                ThrowIfNotSuccessful(response);
 
                 var result = await response.Content.ReadAsAsync<OperationResponse>();
-
                 return result.OperationId;
             }
         }
@@ -32,11 +44,9 @@ namespace MaterialiseCloud.Sdk
             using (var client = CreateHttpClient(await _tokenProvider.GetAccessTokenAsync()))
             {
                 var response = await client.GetAsync(url);
-
-                CheckResponseIsOk(response);
+                ThrowIfNotSuccessful(response);
 
                 var result = await response.Content.ReadAsAsync<TResult>();
-
                 return result;
             }
         }
@@ -51,7 +61,6 @@ namespace MaterialiseCloud.Sdk
                 await Task.Delay(pollingIntervalMilliseconds);
 
                 result = await GetOperationStatusAsync(operationId);
-
                 isCompleted = result.IsCompleted;
             }
 
@@ -60,15 +69,13 @@ namespace MaterialiseCloud.Sdk
 
         private async Task<OperationStatusResponse> GetOperationStatusAsync(string operationId)
         {
+            var url = $"/web-api/operation/{operationId}/status";
             using (var client = CreateHttpClient(await _tokenProvider.GetAccessTokenAsync()))
             {
-                var url = $"/web-api/operation/{operationId}/status";
                 var response = await client.GetAsync(url);
-
-                CheckResponseIsOk(response);
+                ThrowIfNotSuccessful(response);
 
                 var result = await response.Content.ReadAsAsync<OperationStatusResponse>();
-
                 return result;
             }
         }

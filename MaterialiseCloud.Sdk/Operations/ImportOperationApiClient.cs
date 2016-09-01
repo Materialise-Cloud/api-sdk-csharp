@@ -1,24 +1,23 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace MaterialiseCloud.Sdk
+namespace MaterialiseCloud.Sdk.Operations
 {
     public class ImportOperationApiClient : OperationApiClient
     {
-        public ImportOperationApiClient(string host, TokenProvider tokenProvider) : base(host, tokenProvider)
-        {
-        }
+        public ImportOperationApiClient(string host, TokenProvider tokenProvider) 
+            : base(host, tokenProvider)
+        { }
 
         public async Task<string> ImportAsync(string fileId, MeasurementUnits measurementUnits, string callbackUrl = null)
         {
-            var requestData = new Dictionary<string, string>
-            {
-                {"fileId", fileId},
-                {"measurementUnits", measurementUnits.ToString()},
-                {"callbackUrl", callbackUrl}
-            };
-
             var url = "web-api/operation/import";
+            var requestData = new ImportRequest
+            {
+                FileId = fileId,
+                MeasurementUnits = measurementUnits.ToString(),
+                CallbackUrl = callbackUrl
+            };
 
             var result = await PostOperationAsync(url, requestData);
             return result;
@@ -29,10 +28,16 @@ namespace MaterialiseCloud.Sdk
             var url = $"web-api/operation/{operationId}/import/result";
 
             var result = await GetOperationResultAsync<ImportResult>(url);
-
             return result.ResultId;
         }
     }
+
+    public class ImportRequest : OperationRequestBase
+    {
+        public string FileId { get; set; }
+        public string MeasurementUnits { get; set; }
+    }
+
 
     public class ImportResult
     {

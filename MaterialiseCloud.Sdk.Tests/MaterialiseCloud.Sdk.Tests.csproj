@@ -1,16 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{44A9DA48-4881-4A8E-A703-00B465179975}</ProjectGuid>
+    <ProjectGuid>{C4BC7E9B-6A89-40D2-9F8C-9BBAA1E96CCA}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MaterialiseCloud.Sdk</RootNamespace>
-    <AssemblyName>MaterialiseCloud.Sdk</AssemblyName>
+    <RootNamespace>MaterialiseCloud.Sdk.Tests</RootNamespace>
+    <AssemblyName>MaterialiseCloud.Sdk.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+    <ReferencePath>$(ProgramFiles)\Common Files\microsoft shared\VSTT\$(VisualStudioVersion)\UITestExtensionPackages</ReferencePath>
+    <IsCodedUITest>False</IsCodedUITest>
+    <TestProjectType>UnitTest</TestProjectType>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -29,16 +34,8 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject />
-  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Core" />
     <Reference Include="System.Net" />
     <Reference Include="System.Net.Http">
       <HintPath>..\packages\System.Net.Http.2.0.20126.16343\lib\net40\System.Net.Http.dll</HintPath>
@@ -60,50 +57,55 @@
       <HintPath>..\packages\System.Net.Http.2.0.20126.16343\lib\net40\System.Net.Http.WebRequest.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <Choose>
+    <When Condition="('$(VisualStudioVersion)' == '10.0' or '$(VisualStudioVersion)' == '') and '$(TargetFrameworkVersion)' == 'v3.5'">
+      <ItemGroup>
+        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <ItemGroup>
+        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework" />
+      </ItemGroup>
+    </Otherwise>
+  </Choose>
+  <ItemGroup>
+    <Compile Include="ExampleTests.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AccessApiClient.cs" />
-    <Compile Include="Operations\Axes.cs" />
-    <Compile Include="Operations\ConvertToStlOperationApiClient.cs" />
-    <Compile Include="Operations\ExportFormats.cs" />
-    <Compile Include="Operations\FileResult.cs" />
-    <Compile Include="Operations\GenerateThumbnailOperationApiClient.cs" />
-    <Compile Include="Operations\HollowingOperationApiClient.cs" />
-    <Compile Include="Operations\MeasurementUnits.cs" />
-    <Compile Include="OperationRequest.cs" />
-    <Compile Include="OperationRequestBase.cs" />
-    <Compile Include="Operations\GeometricalRepairOperationApiClient.cs" />
-    <Compile Include="Operations\ReduceTrianglesOperationApiClient.cs" />
-    <Compile Include="Operations\RepairOperationApiClient.cs" />
-    <Compile Include="ApiClientBase.cs" />
-    <Compile Include="ApiException.cs" />
-    <Compile Include="Error.cs" />
-    <Compile Include="ErrorResponse.cs" />
-    <Compile Include="Example.cs" />
-    <Compile Include="Operations\AnalyzeOperationApiClient.cs" />
-    <Compile Include="Operations\ExportOperationApiClient.cs" />
-    <Compile Include="Operations\ImportOperationApiClient.cs" />
-    <Compile Include="OperationApiClient.cs" />
-    <Compile Include="OperationFileApiClient.cs" />
-    <Compile Include="Operations\GenericResult.cs" />
-    <Compile Include="Operations\ScaleOperationApiClient.cs" />
-    <Compile Include="Operations\ShrinkwrapRepairAccuracies.cs" />
-    <Compile Include="Operations\ShrinkwrapRepairOperationApiClient.cs" />
-    <Compile Include="Operations\WallThicknessAnalysisOperationApiClient.cs" />
-    <Compile Include="Operations\WallThicknessAnalysisResult.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TokenProvider.cs" />
+    <ProjectReference Include="..\MaterialiseCloud.Sdk\MaterialiseCloud.Sdk.csproj">
+      <Project>{44A9DA48-4881-4A8E-A703-00B465179975}</Project>
+      <Name>MaterialiseCloud.Sdk</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="meerkat_bad.3DS">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <Choose>
+    <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
+      <ItemGroup>
+        <Reference Include="Microsoft.VisualStudio.QualityTools.CodedUITestFramework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+          <Private>False</Private>
+        </Reference>
+        <Reference Include="Microsoft.VisualStudio.TestTools.UITest.Common, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+          <Private>False</Private>
+        </Reference>
+        <Reference Include="Microsoft.VisualStudio.TestTools.UITest.Extension, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+          <Private>False</Private>
+        </Reference>
+        <Reference Include="Microsoft.VisualStudio.TestTools.UITesting, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+          <Private>False</Private>
+        </Reference>
+      </ItemGroup>
+    </When>
+  </Choose>
+  <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

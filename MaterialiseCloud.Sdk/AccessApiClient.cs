@@ -34,6 +34,8 @@ namespace MaterialiseCloud.Sdk
                 var postContent = new FormUrlEncodedContent(request);
 
                 var response = await client.PostAsync("token", postContent);
+               
+
 
                 var tokenResponse = await response.Content.ReadAsAsync<AccessTokenResponse>();
                 return tokenResponse;
@@ -65,7 +67,7 @@ namespace MaterialiseCloud.Sdk
             var authHeaderString = $"{_clientId}:{_clientSecret}";
             var authorizationHeader = Convert.ToBase64String(Encoding.Default.GetBytes(authHeaderString));
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", authorizationHeader);
-            client.BaseAddress = new Uri(_host);
+            client.BaseAddress = new Uri($"https://{_host}");
 
             return client;
         }

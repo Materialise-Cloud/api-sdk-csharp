@@ -1,32 +1,31 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace MaterialiseCloud.Sdk
+namespace MaterialiseCloud.Sdk.Operations
 {
     public class AnalyzeOperationApiClient : OperationApiClient
     {
-        public AnalyzeOperationApiClient(string host, TokenProvider tokenProvider) : base(host, tokenProvider)
-        {
-        }
+        public AnalyzeOperationApiClient(string host, TokenProvider tokenProvider) 
+            : base(host, tokenProvider)
+        { }
 
         public async Task<string> AnalyzeAsync(string inputId, string callbackUrl = null)
         {
-            var requestData = new Dictionary<string, string>
-            {
-                {"inputId", inputId},
-                {"callbackUrl", callbackUrl}
-            };
-
             var url = "web-api/operation/analyze";
 
-            var result = await PostOperationAsync(url, requestData);
+            var request = new OperationRequest
+            {
+                InputId = inputId,
+                CallbackUrl = callbackUrl
+            };
+
+            var result = await PostOperationAsync(url, request);
             return result;
         }
 
         public async Task<AnalyzeResult> GetAnalyzeResultAsync(string operationId)
         {
             var url = $"web-api/operation/{operationId}/analyze/result";
-
             var result = await GetOperationResultAsync<AnalyzeResult>(url);
 
             return result;
